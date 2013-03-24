@@ -1,0 +1,76 @@
+<?DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<script type="text/javascript">
+
+	function Start() 
+	{
+		// Get the canvas set in HTML 
+		var canvas = document.getElementById('triangle');
+
+		// GL context
+		var gl = null;
+		
+		try 
+		{
+			gl = canvas.getContext('experimental-webgl');
+		}
+	    catch(e) 
+		{
+			console.log(e);return;
+		}
+		if(!gl) 
+		{
+			console.log(e);return;
+		}
+
+	    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		//gl.enable(gl.DEPTH_TEST);
+		
+        var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+		var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+
+		gl.shaderSource(fragShader, 'void main(void) {gl_FragColor = vec4(0.4, 1.0, 0.0, 1.0);}');
+		gl.compileShader(fragShader);
+		
+		gl.shaderSource(vertexShader, 'attribute vec2 ppos; void main(void) { gl_Position = vec4(ppos.x, ppos.y, 0.0, 1.0);}');
+		gl.compileShader(vertexShader);
+		
+		// New program object
+		var program = gl.createProgram();
+		gl.attachShader(program, fragShader);
+		gl.attachShader(program, vertexShader);
+		gl.linkProgram(program);
+		
+		// Validate the program
+		gl.validateProgram(program);
+		// Make part of current rendering state
+		gl.useProgram(program);
+		
+		// Attribute pos
+		var vattrib = gl.getAttribLocation(program, 'ppos');
+		gl.enableVertexAttribArray(vattrib);
+		
+		// Buffer for the triangle, bind the object to the buffer
+		var vbuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, vbuffer);
+		
+		// Triangle coordinates
+		var vertices = new Float32Array([0.0,0.5,-0.5,-0.5,0.5,-0.5]);
+		gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+		gl.vertexAttribPointer(vattrib, 2, gl.FLOAT, false, 0, 0);
+		//render
+		gl.drawArrays(gl.TRIANGLES, 0, 3);
+		gl.flush();
+		
+    }
+</script>
+
+<body onload="Start();">
+<canvas id="triangle" style="border: solid 1px;" width="800" height="600"></canvas>
+</head>
+</body>
+</html>
