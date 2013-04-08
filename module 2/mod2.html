@@ -1,0 +1,73 @@
+<?DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+  <script src="./lib/jquery-1.9.1.min.js"></script>
+  <script src="./lib/three.js"></script>
+  <script src="mod2.js"></script>
+	
+////////////////////////////////////////////////////////////////////////////////
+<script id="shader-fs" type="x-shader/x-fragment">
+
+	precision lowp float;
+	varying float vAngle;
+
+	vec4 color(float a) 
+	{
+	return vec4(1.0*tan(a/10.0), 0.0, 1.0*cos(a), 1.0*sin(a));
+	}
+
+	void main(void) 
+	{
+		gl_FragColor = color(vAngle);
+	}
+</script>
+////////////////////////////////////////////////////////////////////////////////
+<script id="shader-vs" type="x-shader/x-vertex">
+	attribute float aVertexAngle;
+	uniform mat4 uModelView;
+	uniform mat4 uProjection;
+	uniform float uRadius;
+	varying float vAngle;
+	vec4 transform(float a) 
+	{
+		return vec4(uRadius * cos(radians(a)), uRadius * sin(radians(a)), 0.0, 1.0);
+	}
+
+	void computePointSize(float angle, out float result) 
+	{
+		result = 10.0 + angle / 10.0;
+	}
+
+	void main(void) 
+	{
+		gl_PointSize = 3.0;
+		vAngle = aVertexAngle;
+		gl_Position = uProjection * uModelView * transform(aVertexAngle);
+	}
+////////////////////////////////////////////////////////////////////////////////
+</script>
+<script>
+$(function(){
+   $("#controls input").each( function(i){
+      $(this).on('change', function(){
+         if($(this).is(':checked')){
+             app.setMode( $(this).val() );
+             app.Render();
+          }
+      });
+   });
+})
+</script>
+////////////////////////////////////////////////////////////////////////////////
+<body onload="app.Prepare();">
+<div id="controls">
+<input type="radio" name="render-type" value="TRIANGLE_FAN"/>Triangle fan
+<input type="radio" name="render-type" value="LINE_LOOP"/>Line loop
+<input type="radio" name="render-type" value="POINTS"/>Points</br>
+<canvas id="circle" style="border: solid 1px;" width="800" height="600"></canvas>
+</div>
+////////////////////////////////////////////////////////////////////////////////
+</head>
+</body>
+</html>
